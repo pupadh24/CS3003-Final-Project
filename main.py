@@ -32,20 +32,20 @@ class Account(ABC):
             raise TypeError("Account is an abstract class and cannot be instantiated directly")
         
         self._accountName = accountName
-        self.__balance = initialBalance
+        self._balance = initialBalance
         self._transactions = []
 
     def getAccountName(self):
         return self._accountName
 
     def getBalance(self):
-        return self.__balance
+        return self._balance
 
     def getTransactions(self):
         return list(self._transactions)
 
     def _updateBalance(self, amount):
-        self.__balance += amount
+        self._balance += amount
 
     @abstractmethod
     def processTransaction(self, transaction):
