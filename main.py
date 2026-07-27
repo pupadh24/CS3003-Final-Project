@@ -24,6 +24,12 @@ class Transaction(ABC):
     def getTimestamp(self):
         return self._timestamp
 
+class Expense(Transaction):
+    pass
+
+class Income(Transaction):
+    pass
+
 
 # This is an abstract blueprint representing a financial account and this is encapsulated
 class Account(ABC):
@@ -44,11 +50,43 @@ class Account(ABC):
     def getTransactions(self):
         return list(self._transactions)
 
-    def _updateBalance(self, amount):
-        self._balance += amount
-
     @abstractmethod
     def processTransaction(self, transaction):
         pass
 
+class CheckingAccount(Account):
+    def processTransaction(self, transaction):
+        if isinstance(transaction, Expense):
+            if self.getBalance() - transaction.getAmount() < 0:
+                raise ValueError("Your transaction has been blocked")
+            self._balance -= transaction.getAmount()
+            self._transactions.append(transaction)
+            
+        elif isinstance(transaction, Income):
+            self._balance += transaction.getAmount()
+            self._transactions.append(transaction)
+        else:
+            raise TypeError("Invalid transaction type")
 
+
+class CreditCard(Account):
+    def __init__(self, accountName, creditLimit, initialBalance = 0.0):
+        super().__init__(accountName, initialBalance)
+        self._creditLimit = creditLimit
+
+    def getCreditLimit(self):
+        return self._creditLimit
+
+    def processTransaction(self, transaction):
+        if isinstance(transaction, Expense):
+            if self.getBalance() + transaction.getAmount() > self._creditLimit:
+                raise ValueError("Your transaction has been blocked")
+            self._balance += transaction.getAmount()
+            self._transactions.append(transaction)
+
+        elif isinstance(transaction, Income):
+            self._balance -= transaction.getAmount()
+            self._transactions.append(transaction)
+
+        else:
+            raise TypeError("Invalid transaction type")
