@@ -173,3 +173,83 @@ class FinanceTracker:
         return {"accounts": accountSummaries, "budgets": budgetSummaries}
 
 
+# CLI interface menu loop
+def main():
+    tracker = FinanceTracker()
+    
+    while True:
+        print("\nPersonal Finance Tracker")
+        print("1. Create account")
+        print("2. Set up budget")
+        print("3. Log transaction")
+        print("4. Print financial summary")
+        print("5. Exit")
+        
+        choice = input("Select an option (1-5): ").strip()
+        
+        if choice == "1":
+            acc_type = input("Account type (checking/credit): ").strip().lower()
+            name = input("Account name: ").strip()
+            
+            if acc_type == "checking":
+                bal = float(input("Starting balance: "))
+                tracker.addAccount(CheckingAccount(name, bal))
+                print("Checking account created")
+
+            elif acc_type == "credit":
+                limit = float(input("Credit limit: "))
+                tracker.addAccount(CreditCard(name, limit))
+                print("Credit card created")
+            else:
+                print("Invalid account type")
+
+        elif choice == "2":
+            category = input("Category name: ").strip()
+            limit = float(input("Spending limit: "))
+            tracker.addBudget(Budget(category, limit))
+            print("Budget created")
+
+        elif choice == "3":
+            tx_type = input("Transaction type (expense/income): ").strip().lower()
+            acc_name = input("Account name: ").strip()
+            amount = float(input("Amount: "))
+            category = input("Category: ").strip()
+            desc = input("Description: ").strip()
+
+            try:
+                if tx_type == "expense":
+                    tx = Expense(amount, category, desc)
+
+                elif tx_type == "income":
+                    tx = Income(amount, category, desc)
+
+                else:
+                    print("Invalid transaction type")
+                    continue
+
+                tracker.processTransaction(acc_name, tx)
+                print("Transaction processed")
+            except Exception as e:
+                print("Error processing transaction:", e)
+
+        elif choice == "4":
+            report = tracker.generateReport()
+            print("\nAccounts")
+
+            for acc in report["accounts"]:
+                print(f"Name: {acc['name']} | Balance: ${acc['balance']:.2f}")
+
+            print("\nBudgets")
+            for b in report["budgets"]:
+                print(f"Category: {b['category']} | Limit: ${b['limit']:.2f} | Spent: ${b['totalSpent']:.2f} | Status: {b['status']}")
+
+
+        elif choice == "5":
+            print("Goodbye")
+            break
+        else:
+            print("Invalid choice")
+
+
+if __name__ == "__main__":
+    main()
