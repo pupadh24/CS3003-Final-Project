@@ -130,3 +130,46 @@ class Budget:
             "status": warning
         }
 
+
+# This class acts as a hub to controll all accounts and budgets
+class FinanceTracker:
+    def __init__(self):
+        self._accounts = {}
+        self._budgets = []
+
+    def addAccount(self, account):
+        self._accounts[account.getAccountName()] = account
+
+    def addBudget(self, budget):
+        self._budgets.append(budget)
+
+    def getAccount(self, name):
+        return self._accounts.get(name)
+
+    def processTransaction(self, accountName, transaction):
+        if accountName not in self._accounts:
+            raise ValueError("Account not found")
+
+        self._accounts[accountName].processTransaction(transaction)
+
+    def getAllTransactions(self):
+        allTx = []
+        for account in self._accounts.values():
+            allTx.extend(account.getTransactions())
+
+        return allTx
+
+    def generateReport(self):
+        allTx = self.getAllTransactions()
+        
+        accountSummaries = []
+        for name, account in self._accounts.items():
+            accountSummaries.append({"name": name, "balance": account.getBalance()})
+
+        budgetSummaries = []
+        for budget in self._budgets:
+            budgetSummaries.append(budget.getStatusReport(allTx))
+
+        return {"accounts": accountSummaries, "budgets": budgetSummaries}
+
+
