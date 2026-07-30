@@ -90,3 +90,43 @@ class CreditCard(Account):
 
         else:
             raise TypeError("Invalid transaction type")
+
+
+# This class tracks spending limits for a specific category
+class Budget:
+    def __init__(self, category, limit):
+        self._category = category
+        self._limit = limit
+
+    def getCategory(self):
+        return self._category
+
+    def getLimit(self):
+        return self._limit
+
+    def calculateTotalSpent(self, transactions):
+        total = 0.0
+        for t in transactions:
+            if isinstance(t, Expense) and t.getCategory().lower() == self._category.lower():
+                total += t.getAmount()
+        return total
+
+    def getStatusReport(self, transactions):
+        spent = self.calculateTotalSpent(transactions)
+        remaining = self._limit - spent
+        isOverBudget = spent > self._limit
+        
+        if isOverBudget:
+            warning = "Warning: over budget"
+        else:
+            warning = "Within budget"
+
+        return {
+            "category": self._category,
+            "limit": self._limit,
+            "totalSpent": spent,
+            "remaining": remaining,
+            "isOverBudget": isOverBudget,
+            "status": warning
+        }
+
